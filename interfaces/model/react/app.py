@@ -74,7 +74,6 @@ class Model(metaclass=ABCMeta):
             jsmap = {"javascript": "js", "typescript": "ts"}
             codelang_js = jsmap[codelang_js]
 
-            if 'controller' not in pkg['package']: pkg['package']['controller'] = ''
             if 'theme' not in pkg['package']: pkg['package']['theme'] = ''
 
             def readfile(key, filename, default=""):
@@ -83,7 +82,6 @@ class Model(metaclass=ABCMeta):
                 return pkg
 
             if code:
-                pkg = readfile("controller", "controller.py")
                 pkg = readfile("api", "api.py")
                 pkg = readfile("socketio", "socketio.py")
                 
@@ -158,18 +156,9 @@ class Model(metaclass=ABCMeta):
                 del wiz.memory[self.memory_id]
             data = self.data()
 
-            ctrl = None
-            if 'controller' in data['package'] and len(data['package']['controller']) > 0:
-                ctrl = data['package']['controller']
-                ctrl = wiz.controller(ctrl, startup=True)
-
             tag = wiz.tag()
             logger = wiz.logger(f"[{tag}/app/{app_id}]", 94)
             dic = self.dic()
-
-            # proceed app controller
-            name = os.path.join(wiz.basepath(), 'apps', app_id, 'controller.py')
-            proceed = season.util.os.compiler(data['controller'], name=name, logger=logger, controller=ctrl, dic=dic, wiz=wiz, kwargs=kwargs)
 
             dicstr = dic()
             dicstr = json.dumps(dicstr, default=season.util.string.json_default)
@@ -255,23 +244,18 @@ class Model(metaclass=ABCMeta):
             view_api = app['api']
             if len(view_api) == 0:
                 return None
-
-            ctrl = None
-            if 'controller' in app['package'] and len(app['package']['controller']) > 0:
-                ctrl = app['package']['controller']
-                ctrl = wiz.controller(ctrl, startup=True)
             
             tag = wiz.tag()
             logger = wiz.logger(f"[{tag}/app/{app_id}/api]", 94)
             dic = self.dic()
             name = os.path.join(wiz.basepath(), 'apps', app_id, 'api.py')
-            apifn = season.util.os.compiler(view_api, name=name, logger=logger, controller=ctrl, dic=dic, wiz=wiz)
+            apifn = season.util.os.compiler(view_api, name=name, logger=logger, dic=dic, wiz=wiz)
 
             return apifn
 
         def update(self, data):
             # check structure
-            required = ['package', 'dic', 'controller', 'api', 'socketio', 'html', 'js', 'css']
+            required = ['package', 'dic', 'api', 'socketio', 'html', 'js', 'css']
             for key in required:
                 if key not in data: 
                     raise Exception(f"'`{key}`' not defined")
@@ -308,18 +292,17 @@ class Model(metaclass=ABCMeta):
                     return default
             codelang_html = load_property("html", "pug")
             codelang_css = load_property("css", "scss")
-            codelang_js = load_property("jsx", "javascript")
-            jsmap = {"javascript": "jsx", "typescript": "tsx"}
+            codelang_js = load_property("js", "javascript")
+            jsmap = {"javascript": "js", "typescript": "ts"}
             codelang_js = jsmap[codelang_js]
 
             # save file
             self.fs.write.json("app.json", data['package'])
             self.fs.write.json("dic.json", data['dic'])
-            self.fs.write("controller.py", data['controller'])
             self.fs.write("api.py", data['api'])
             self.fs.write("socketio.py", data['socketio'])
             self.fs.write(f"view.{codelang_html}", data['html'])
-            self.fs.write(f"view.{codelang_js}", data['jsx'])
+            self.fs.write(f"view.{codelang_js}", data['js'])
             self.fs.write(f"view.{codelang_css}", data['css'])
 
             # update cache
