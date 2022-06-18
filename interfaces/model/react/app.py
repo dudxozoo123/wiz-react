@@ -68,7 +68,7 @@ class Model(metaclass=ABCMeta):
                     return pkg['package']['properties'][key]
                 except:
                     return default
-            codelang_html = load_property("html", "pug")
+            codelang_html = load_property("html", "html")
             codelang_css = load_property("css", "scss")
             codelang_js = load_property("js", "javascript")
             jsmap = {"javascript": "js", "typescript": "ts"}
@@ -138,14 +138,8 @@ class Model(metaclass=ABCMeta):
                 dicdata = dict()
             return dicClass(wiz, dicdata)
 
-        def view(self, namespace, **kwargs):
+        def view(self, namespace):
             wiz = self.manager.wiz
-
-            respdata = wiz.response.data.get()
-            for key in respdata:
-                if key not in kwargs:
-                    kwargs[key] = respdata[key]
-
             cachefs = season.util.os.FileSystem(os.path.join(self.manager.cachepath(), namespace))
 
             app_id = self.id
@@ -158,20 +152,6 @@ class Model(metaclass=ABCMeta):
 
             tag = wiz.tag()
             logger = wiz.logger(f"[{tag}/app/{app_id}]", 94)
-            dic = self.dic()
-
-            dicstr = dic()
-            dicstr = json.dumps(dicstr, default=season.util.string.json_default)
-            dicstr = dicstr.encode('ascii')
-            dicstr = base64.b64encode(dicstr)
-            dicstr = dicstr.decode('ascii')
-
-            kwargs = proceed['kwargs']
-            kwargs_copy = kwargs.copy()
-            kwargsstr = json.dumps(kwargs, default=season.util.string.json_default)
-            kwargsstr = kwargsstr.encode('ascii')
-            kwargsstr = base64.b64encode(kwargsstr)
-            kwargsstr = kwargsstr.decode('ascii')
 
             # compile view, if not cached
             if cachefs.isfile("compile.pkl"):
@@ -191,7 +171,7 @@ class Model(metaclass=ABCMeta):
                 except:
                     return default
 
-            codelang_html = load_property("html", "pug")
+            codelang_html = load_property("html", "html")
             codelang_css = load_property("css", "scss")
             codelang_js = load_property("js", "javascript")
 
@@ -225,12 +205,7 @@ class Model(metaclass=ABCMeta):
             view = f'{view}<script type="text/javascript">{js}</script><style>{css}</style>'
             
             filename = os.path.join(wiz.basepath(), 'apps', app_id, f'view.{codelang_html}')
-            kwargs['filename'] = filename
-            kwargs['kwargs'] = kwargsstr
-            kwargs['dicstr'] = dicstr
-            kwargs['dic'] = dic
-            kwargs['wiz'] = wiz
-            view = wiz.response.template(view, **kwargs)
+            view = wiz.response.template(view, filename=filename, wiz=wiz)
             
             return markupsafe.Markup(view)
 
@@ -247,9 +222,8 @@ class Model(metaclass=ABCMeta):
             
             tag = wiz.tag()
             logger = wiz.logger(f"[{tag}/app/{app_id}/api]", 94)
-            dic = self.dic()
             name = os.path.join(wiz.basepath(), 'apps', app_id, 'api.py')
-            apifn = season.util.os.compiler(view_api, name=name, logger=logger, dic=dic, wiz=wiz)
+            apifn = season.util.os.compiler(view_api, name=name, logger=logger, wiz=wiz)
 
             return apifn
 
@@ -290,7 +264,7 @@ class Model(metaclass=ABCMeta):
                     return data['package']['properties'][key]
                 except:
                     return default
-            codelang_html = load_property("html", "pug")
+            codelang_html = load_property("html", "html")
             codelang_css = load_property("css", "scss")
             codelang_js = load_property("js", "javascript")
             jsmap = {"javascript": "js", "typescript": "ts"}
