@@ -3,31 +3,28 @@ import os
 import season
 import re
 
-class Model(wiz.model("storage")):
-    def __init__(self):
+class Model(wiz.model("react/app")):
+    def __init__(self, module):
         self.component = None
-        super().__init__()
-        self.app = season.stdClass()
-        self.app.refresh = self.__refresh__
-        self.app.load = self.__load__
-        self.app.update = self.__update__
-        self.app.delete = self.__delete__
-        self.app.rows = self.__rows__
-        self.app.get = self.__get__
+        self.module = module
+        super().__init__(wiz)
 
     # override
     def basepath(self):
-        return os.path.join(os.path.join(season.path.project, "react"), self.namespace)
+        return os.path.join(season.path.project, "branch", wiz.branch(), self.module)
+
+    # override
+    def cachepath(self):
+        return os.path.join(season.path.project, "cache", "branch", wiz.branch(), self.module)
 
     def __error__(self, msg = ""):
         msg = str(msg)
         raise Exception(f"WIZ-REACT App [model][storage]: {msg}")
 
-    @staticmethod
-    def use(namespace=""):
-        fs = Model()
-        fs.namespace = namespace
-        return fs
+    # def fs(self, path=None):
+    #     if path is None:
+    #         return season.util.os.FileSystem(self.basepath())
+    #     return season.util.os.FileSystem(self.basepath()).use(path)  
 
     def yarn(self):
         return wiz.model("react/yarn")(self)
@@ -35,7 +32,7 @@ class Model(wiz.model("storage")):
     ## API METHOD
 
     # component rebuild
-    def __refresh__(self, component, path=""):
+    def refresh(self, component, path=""):
         yarn = self.yarn()
 
         # app cache delete
