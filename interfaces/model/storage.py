@@ -166,14 +166,13 @@ class write:
 
 class Model:
     def __init__(self):
-        self.config = wiz.config('storage')
         self.namespace = ""
 
         self.read = read(self)
         self.write = write(self)
         
     def basepath(self):
-        return os.path.join(self.config.get("path", os.path.join(season.path.project, "storage")), self.namespace)
+        return os.path.join(os.path.join(season.path.project, "storage"), self.namespace)
 
     def __json__(self, jsonstr):
         try:
@@ -195,10 +194,6 @@ class Model:
         fs = Model()
         fs.namespace = namespace
         return fs
-
-    def set_path(self, path):
-        self.config.path = path
-        return self
 
     def cd(self, namespace):
         namespace = os.path.join(self.namespace, namespace)

@@ -1,0 +1,20 @@
+doctype 5
+
+html(ng-app="app")
+    head
+        {$ wiz.theme('react', 'base', 'header.pug') $}
+        
+    body.antialiased
+        .page
+            .preview
+                {$ view $}
+
+            style.
+                html,
+                body {
+                    overflow: auto;
+                }
+
+                .page {
+                    background: transparent;
+                }
