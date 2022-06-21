@@ -2,6 +2,7 @@
   "name": "WIZ_REACT_APP",
   "version": "0.0.1",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "version": "esbuild --version",
     "build": "node ./build"
@@ -19,6 +20,10 @@
   "dependencies": {
     "@babel/cli": "^7.17.10",
     "@babel/core": "^7.17.10",
-    "@babel/preset-env": "^7.17.10"
+    "@babel/preset-env": "^7.17.10",
+    "babel-plugin-transform-react-pug": "^7.0.1",
+    "esbuild-plugin-babel": "^0.2.3",
+    "react-directive": "^1.0.0",
+    "react-vac": "^0.2.2"
   }
 }

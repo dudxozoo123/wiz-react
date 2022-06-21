@@ -197,31 +197,46 @@ class Model(metaclass=ABCMeta):
             _search = p.search(data['jsx'])
             component = _search[1]
 
-            ## VAC pattern -> create {component}View
-            o = '('
-            e = ')'
-            if 'onlyhtml' not in package:
-                package['onlyhtml'] = True
-            if package['onlyhtml'] == False:
-                o = '{'
-                e = '}'
-            vac_component = f'''import React from "react";
-import "./view.scss";
-const {component}View = (props) => {o}
-{data["vac"]}
-{e};
-export default {component}View;'''
-            self.fs.write("VAComponent.jsx", vac_component)
-
             ## react import check
             import_regex = re.compile('import[\s]+.+[\s]+from[\s]+[\'\"]{1}(.+)[\'\"]{1};?')
             import_list = import_regex.findall(data['jsx'])
             view_component = data['jsx']
-            if "./VAC" not in import_list:
-                view_component = f'import {component}View from "./VAComponent";\n' + view_component
             if "react" not in import_list:
                 view_component = 'import React from "react";\n' + view_component
+            view_component = 'import Directive from "./ReactDirective";\n' + view_component
+            # view_component = 'import Directive from "react-directive";\n' + view_component
+
+            ## WizView replace
+            wizview_regex = re.compile('return[\s]+WizView;?')
+            res_wizview = wizview_regex.findall(view_component)
+            if res_wizview is not None and len(res_wizview) > 0:
+                vac = 'return (<Directive>\n' + data['vac'] + '\n</Directive>);'
+                view_component = view_component.replace(res_wizview[-1], vac)
+            # pugview_regex = re.compile('return[\s]+PugView;?')
+            # res_pugview = wizview_regex.findall(view_component)
+
+            ## save replaced code
             self.fs.write("ViewComponent.jsx", view_component)
+
+#             import pypugjs
+
+#             def compile(code):
+#                 pugconfig = season.stdClass()
+#                 pugconfig.variable_start_string = '[['
+#                 pugconfig.variable_end_string = ']]'
+
+#                 pug = pypugjs.Parser(code)
+#                 pug = pug.parse()
+#                 html = pypugjs.ext.jinja.Compiler(pug, **pugconfig).compile()
+#                 print(html)
+#                 return html
+
+#             test_code = '''
+# .test(onChange={onChange})
+#     input(value={value})
+#             '''
+#             test_code = test_code.replace("{", "'{").replace("}", "}'")
+#             compile(test_code)
 
             ## index.jsx
             js = f'''import React from "react";
