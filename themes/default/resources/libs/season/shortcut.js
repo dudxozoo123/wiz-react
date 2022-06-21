@@ -41,7 +41,7 @@ window.season.shortcut = function (element, config) {
             lasttime = new Date().getTime();
 
             if (diff > 3000) {
-                self.holdings = {};    
+                self.holdings = {};
                 return;
             }
 

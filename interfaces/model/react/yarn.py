@@ -100,7 +100,9 @@ class Model:
         if "not found" in result:
             self.__error__("please install yarn")
         self.default_dep = ["react", "react-dom"]
-        self.default_devdep = ["@babel/core", "@babel/cli", "@babel/preset-env", "@babel/plugin-transform-react-jsx", "@babel/preset-react", "esbuild", "esbuild-sass-plugin", "node-sass"]
+        self.default_devdep = ["@babel/core", "@babel/cli", "@babel/preset-env", "@babel/plugin-transform-react-jsx", "@babel/preset-react"]
+        self.default_devdep = self.default_devdep + ["esbuild", "esbuild-sass-plugin", "node-sass"]
+        self.default_devdep = self.default_devdep + ["react-vac"]
         self.__init_package_json__()
 
     @staticmethod

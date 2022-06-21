@@ -1,0 +1,9 @@
+{
+    "id": "react.router",
+    "title": "/<path:path>",
+    "route": "/<path:path>/",
+    "viewuri": "/page.main",
+    "created": "2021-11-28 14:09:14",
+    "updated": "2022-06-20 20:24:38",
+    "controller": "view"
+}

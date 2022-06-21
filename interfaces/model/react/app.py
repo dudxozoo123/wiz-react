@@ -4,6 +4,8 @@ import base64
 import json
 import datetime
 import markupsafe
+import re
+import subprocess
 from abc import *
 
 class Model(metaclass=ABCMeta):
@@ -55,24 +57,13 @@ class Model(metaclass=ABCMeta):
 
         def data(self, code=True):
             wiz = self.manager.wiz
-            if self.memory_id in wiz.memory and code is True:
-                return wiz.memory[self.memory_id]
+            # if self.memory_id in wiz.memory and code is True:
+            #     return wiz.memory[self.memory_id]
 
             fs = self.fs
             pkg = dict()
             pkg["package"] = fs.read.json(f"app.json")
             pkg["package"]['id'] = self.id
-            
-            def load_property(key, default=None):
-                try:
-                    return pkg['package']['properties'][key]
-                except:
-                    return default
-            codelang_html = load_property("html", "html")
-            codelang_css = load_property("css", "scss")
-            codelang_js = load_property("js", "javascript")
-            jsmap = {"javascript": "js", "typescript": "ts"}
-            codelang_js = jsmap[codelang_js]
 
             if 'theme' not in pkg['package']: pkg['package']['theme'] = ''
 
@@ -85,17 +76,20 @@ class Model(metaclass=ABCMeta):
                 pkg = readfile("api", "api.py")
                 pkg = readfile("socketio", "socketio.py")
                 
-                if fs.isfile(f"view.{codelang_html}"): pkg["html"] = fs.read(f"view.{codelang_html}")
-                elif fs.isfile("html.dat"): pkg["html"] = fs.read("html.dat")
-                else: pkg["html"] = ""
+                if fs.isfile(f"VAC.jsx"):
+                    pkg["vac"] = fs.read(f"VAC.jsx")
+                else:
+                    pkg["vac"] = ""
 
-                if fs.isfile(f"view.{codelang_js}"): pkg["js"] = fs.read(f"view.{codelang_js}")
-                elif fs.isfile("js.dat"): pkg["js"] = fs.read("js.dat")
-                else: pkg["js"] = ""
+                if fs.isfile(f"View.jsx"):
+                    pkg["jsx"] = fs.read(f"View.jsx")
+                else:
+                    pkg["jsx"] = ""
 
-                if fs.isfile(f"view.{codelang_css}"): pkg["css"] = fs.read(f"view.{codelang_css}")
-                elif fs.isfile("css.dat"): pkg["css"] = fs.read("css.dat")
-                else: pkg["css"] = ""
+                if fs.isfile(f"view.scss"):
+                    pkg["scss"] = fs.read(f"view.scss")
+                else:
+                    pkg["scss"] = ""
 
                 try:
                     pkg['dic'] = fs.read.json("dic.json")
@@ -103,7 +97,6 @@ class Model(metaclass=ABCMeta):
                     pkg['dic'] = dict()
 
                 wiz.memory[self.memory_id] = pkg
-
             return pkg
 
         def dic(self):
@@ -138,76 +131,13 @@ class Model(metaclass=ABCMeta):
                 dicdata = dict()
             return dicClass(wiz, dicdata)
 
-        def view(self, namespace):
-            wiz = self.manager.wiz
-            cachefs = season.util.os.FileSystem(os.path.join(self.manager.cachepath(), namespace))
-
-            app_id = self.id
-            request_uri = wiz.request.uri()
-
-            # clean data
-            if self.memory_id in wiz.memory:
-                del wiz.memory[self.memory_id]
-            data = self.data()
-
-            tag = wiz.tag()
-            logger = wiz.logger(f"[{tag}/app/{app_id}]", 94)
-
-            # compile view, if not cached
-            if cachefs.isfile("compile.pkl"):
-                compile_args = cachefs.read.pickle("compile.pkl")
-                render_id = compile_args['render_id']
-            else:
-                render_id = "wiz_" + season.util.string.translate_id(namespace).replace(".", "_") + "_" + season.util.string.random(16)
-                compile_args = dict()
-                compile_args['app_id'] = app_id
-                compile_args['namespace'] = namespace
-                compile_args['render_id'] = render_id
-                cachefs.write.pickle("compile.pkl", compile_args)
-
-            def load_property(key, default=None):
-                try:
-                    return data['package']['properties'][key]
-                except:
-                    return default
-
-            codelang_html = load_property("html", "html")
-            codelang_css = load_property("css", "scss")
-            codelang_js = load_property("js", "javascript")
-
-            # compile to default html language
-            if cachefs.isfile("view.html"):
-                data['html'] = cachefs.read("view.html")
-            else:
-                if codelang_html != 'html': data['html'] = wiz.compiler(codelang_html).compile(data['html'], **compile_args)
-                data['html'] = wiz.compiler('html').compile(data['html'], **compile_args)
-                cachefs.write("view.html", data['html'])
-
-            # compile to default css language
-            if cachefs.isfile("view.css"):
-                data['css'] = cachefs.read("view.css")
-            else:
-                if codelang_css != 'css': data['css'] = wiz.compiler(codelang_css).compile(data['css'], **compile_args)
-                data['css'] = wiz.compiler('css').compile(data['css'], **compile_args)
-                cachefs.write("view.css", data['css'])
-
-            if cachefs.isfile("view.js"):
-                data['js'] = cachefs.read("view.js")
-            else:
-                if codelang_js != 'javascript': data['js'] = wiz.compiler(codelang_js).compile(data['js'], **compile_args)
-                data['js'] = wiz.compiler('javascript').compile(data['js'], **compile_args)
-                cachefs.write("view.js", data['js'])
-
-            # generate view
-            view = data['html']
-            js = data['js']
-            css = data['css']
-            view = f'{view}<script type="text/javascript">{js}</script><style>{css}</style>'
-            
-            filename = os.path.join(wiz.basepath(), 'apps', app_id, f'view.{codelang_html}')
-            view = wiz.response.template(view, filename=filename, wiz=wiz)
-            
-            return markupsafe.Markup(view)
+        def cmd(self, args):
+            try:
+                script = " ".join(args)
+                stdout = subprocess.Popen(script, shell=True, stdout=subprocess.PIPE).stdout
+                return stdout.read().decode().strip()
+            except Exception as e:
+                print(e)
 
         def api(self):
             wiz = self.manager.wiz
@@ -229,7 +159,7 @@ class Model(metaclass=ABCMeta):
 
         def update(self, data):
             # check structure
-            required = ['package', 'dic', 'api', 'socketio', 'html', 'js', 'css']
+            required = ['package', 'dic', 'api', 'socketio', 'vac', 'jsx', 'scss']
             for key in required:
                 if key not in data: 
                     raise Exception(f"'`{key}`' not defined")
@@ -249,7 +179,7 @@ class Model(metaclass=ABCMeta):
             allowed = "qwertyuiopasdfghjklzxcvbnm.1234567890"
             for c in id:
                 if c not in allowed:
-                    raise Exception(f"only alphabet and number and . in package id")
+                    raise Exception(f"only small alphabet and number and . in package id")
 
             # update timestamp
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -259,31 +189,77 @@ class Model(metaclass=ABCMeta):
             data['package'] = package
 
             # extensions
-            def load_property(key, default=None):
-                try:
-                    return data['package']['properties'][key]
-                except:
-                    return default
-            codelang_html = load_property("html", "html")
-            codelang_css = load_property("css", "scss")
-            codelang_js = load_property("js", "javascript")
-            jsmap = {"javascript": "js", "typescript": "ts"}
-            codelang_js = jsmap[codelang_js]
+            wiz = self.manager.wiz
+            # react build
+            
+            ## get Component Name
+            p = re.compile('export[\s]+default[\s]+([A-Z]+[a-zA-Z]+[0-9]?);?')
+            _search = p.search(data['jsx'])
+            component = _search[1]
+
+            ## VAC pattern -> create {component}View
+            o = '('
+            e = ')'
+            if 'onlyhtml' not in package:
+                package['onlyhtml'] = True
+            if package['onlyhtml'] == False:
+                o = '{'
+                e = '}'
+            vac_component = f'''import React from "react";
+import "./view.scss";
+const {component}View = (props) => {o}
+{data["vac"]}
+{e};
+export default {component}View;'''
+            self.fs.write("VAComponent.jsx", vac_component)
+
+            ## react import check
+            import_regex = re.compile('import[\s]+.+[\s]+from[\s]+[\'\"]{1}(.+)[\'\"]{1};?')
+            import_list = import_regex.findall(data['jsx'])
+            view_component = data['jsx']
+            if "./VAC" not in import_list:
+                view_component = f'import {component}View from "./VAComponent";\n' + view_component
+            if "react" not in import_list:
+                view_component = 'import React from "react";\n' + view_component
+            self.fs.write("ViewComponent.jsx", view_component)
+
+            ## index.jsx
+            js = f'''import React from "react";
+import ReactDOM from "react-dom/client";
+import {component} from "./ViewComponent.jsx";
+const App = () => {{
+    return (
+        <div className="react">
+            <{component} />
+        </div>
+    );
+}}
+ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
+            self.fs.write("index.jsx", js)
 
             # save file
             self.fs.write.json("app.json", data['package'])
             self.fs.write.json("dic.json", data['dic'])
             self.fs.write("api.py", data['api'])
             self.fs.write("socketio.py", data['socketio'])
-            self.fs.write(f"view.{codelang_html}", data['html'])
-            self.fs.write(f"view.{codelang_js}", data['js'])
-            self.fs.write(f"view.{codelang_css}", data['css'])
+            self.fs.write(f"VAC.jsx", data['vac'])
+            self.fs.write(f"View.jsx", data['jsx'])
+            self.fs.write(f"view.scss", data['scss'])
+
+            root = os.path.join(season.path.project, "branch", wiz.branch())
+            target_path = os.path.join(self.fs.abspath(), "index.jsx")
+            build_path = os.path.join(root, "build", f"{self.id}.js")
+            output = self.cmd(["cd", root, "&&", "yarn", "run", "build", target_path, build_path])
+            theme_name = package['theme']
+            tmp = theme_name.split("/")
+            theme = tmp[0]
+            layout = tmp[1]
+            html = wiz.server.wiz.theme(theme).layout(layout).view('layout.html')
+            html = str(html).replace("</body>", f"<script type='text/javascript' src='/build/{self.id}.js'></script>\n</body>")
+            buildfs = season.util.os.FileSystem(os.path.join(root, "build"))
+            buildfs.write(f"{self.id}.html", html)
 
             # update cache
-            fs = self.fs
-            wiz = self.manager.wiz
-            dicdata = fs.read.json("dic.json")
-
             wiz.server.socket.bind()
             return self
 

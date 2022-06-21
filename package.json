@@ -1,0 +1,24 @@
+{
+  "name": "WIZ_REACT_APP",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "version": "esbuild --version",
+    "build": "node ./build"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.17.3",
+    "@babel/preset-react": "^7.16.7",
+    "esbuild": "^0.14.38",
+    "esbuild-sass-plugin": "^2.2.6",
+    "node-sass": "^7.0.1",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "tabler-react": "^1.30.1"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.17.10",
+    "@babel/preset-env": "^7.17.10"
+  }
+}

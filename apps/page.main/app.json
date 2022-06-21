@@ -2,15 +2,16 @@
     "id": "page.main",
     "category": "page",
     "script_type": "text/javascript",
-    "theme": "default/nav",
+    "theme": "react/base",
     "controller": "view",
     "properties": {
-        "html": "pug",
+        "html": "html",
         "css": "scss",
-        "js": "javascript"
+        "jsx": "javascript"
     },
     "title": "Main",
-    "viewuri": "/",
+    "viewuri": "/page.main",
     "created": "2022-06-15 21:33:39",
-    "updated": "2022-06-15 22:53:35"
+    "updated": "2022-06-20 22:32:01",
+    "onlyhtml": true
 }
