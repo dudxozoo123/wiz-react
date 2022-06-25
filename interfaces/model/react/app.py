@@ -236,13 +236,13 @@ class Model(metaclass=ABCMeta):
                 view_component = view_component.replace(res_wizview[-1], view)
 
             ## save replaced code
-            self.fs.write("ViewComponent.jsx", view_component)
+            self.fs.write("index.jsx", view_component)
 
             ## index.jsx
             js = f'''import React from "react";
 import ReactDOM from "react-dom/client";
 import {{ RecoilRoot }} from "recoil";
-import {component} from "./ViewComponent.jsx";
+import {component} from "./apps/{self.id}";
 const App = () => {{
     return (
         <RecoilRoot>
@@ -251,7 +251,10 @@ const App = () => {{
     );
 }}
 ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
-            self.fs.write("index.jsx", js)
+            entry_index = "index.jsx"
+            root_basepath = os.path.join(season.path.project, "branch", wiz.branch())
+            rootfs = season.util.os.FileSystem(root_basepath)
+            rootfs.write(entry_index, js)
 
             # save file
             self.fs.write.json("app.json", data['package'])
@@ -263,7 +266,7 @@ ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
             self.fs.write(f"view.scss", data['scss'])
 
             root = os.path.join(season.path.project, "branch", wiz.branch())
-            target_path = os.path.join(self.fs.abspath(), "index.jsx")
+            target_path = os.path.join(rootfs.abspath(), entry_index)
             build_path = os.path.join(root, "build", f"{self.id}.js")
             output = self.cmd(["cd", root, "&&", "yarn", "run", "build", target_path, build_path])
             theme_name = package['theme']
