@@ -205,7 +205,7 @@ class Model(metaclass=ABCMeta):
             if "react" not in import_list:
                 view_component = 'import React from "react";\n' + view_component
             view_component = 'import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";\n' + view_component
-            view_component = 'import Directive from "./ReactDirective";\n' + view_component
+            view_component = 'import Directive from "WizDirective";\n' + view_component
             view_component = 'import "./view.scss";\n' + view_component
 
             ## WizComponent replace

@@ -1,9 +1,9 @@
 import "./view.scss";
-import Directive from "./ReactDirective";
+import Directive from "WizDirective";
 import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";
 import React, { useState, } from "react";
 import VAC from "react-vac";
-import { testAtom, valueSelector } from "./Store";
+import { testAtom, valueSelector } from "WizStore";
 import TestModule from "TestModule";
 
 const Test = ({ children, item, $index }) => {

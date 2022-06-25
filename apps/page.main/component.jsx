@@ -1,6 +1,6 @@
 import React, { useState, } from "react";
 import VAC from "react-vac";
-import { testAtom, valueSelector } from "./Store";
+import { testAtom, valueSelector } from "WizStore";
 import TestModule from "TestModule";
 
 const Test = ({ children, item, $index }) => {
