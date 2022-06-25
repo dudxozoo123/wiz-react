@@ -24,6 +24,7 @@
     "babel-plugin-transform-react-pug": "^7.0.1",
     "esbuild-plugin-babel": "^0.2.3",
     "react-directive": "^1.0.0",
-    "react-vac": "^0.2.2"
+    "react-vac": "^0.2.2",
+    "recoil": "^0.7.4"
   }
 }

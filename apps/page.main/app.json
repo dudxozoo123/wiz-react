@@ -5,13 +5,13 @@
     "theme": "react/base",
     "controller": "view",
     "properties": {
-        "html": "html",
+        "html": "pug",
         "css": "scss",
         "jsx": "javascript"
     },
     "title": "Main",
     "viewuri": "/page.main",
     "created": "2022-06-15 21:33:39",
-    "updated": "2022-06-21 23:21:45",
+    "updated": "2022-06-25 15:26:49",
     "onlyhtml": true
 }

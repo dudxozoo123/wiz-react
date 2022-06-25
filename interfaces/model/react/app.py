@@ -7,6 +7,7 @@ import markupsafe
 import re
 import subprocess
 from abc import *
+import pypugjs
 
 class Model(metaclass=ABCMeta):
     def __init__(self, wiz):
@@ -76,13 +77,13 @@ class Model(metaclass=ABCMeta):
                 pkg = readfile("api", "api.py")
                 pkg = readfile("socketio", "socketio.py")
                 
-                if fs.isfile(f"VAC.jsx"):
-                    pkg["vac"] = fs.read(f"VAC.jsx")
+                if fs.isfile(f"view.jsx"):
+                    pkg["view"] = fs.read(f"view.jsx")
                 else:
-                    pkg["vac"] = ""
+                    pkg["view"] = ""
 
-                if fs.isfile(f"View.jsx"):
-                    pkg["jsx"] = fs.read(f"View.jsx")
+                if fs.isfile(f"component.jsx"):
+                    pkg["jsx"] = fs.read(f"component.jsx")
                 else:
                     pkg["jsx"] = ""
 
@@ -159,7 +160,7 @@ class Model(metaclass=ABCMeta):
 
         def update(self, data):
             # check structure
-            required = ['package', 'dic', 'api', 'socketio', 'vac', 'jsx', 'scss']
+            required = ['package', 'dic', 'api', 'socketio', 'view', 'jsx', 'scss']
             for key in required:
                 if key not in data: 
                     raise Exception(f"'`{key}`' not defined")
@@ -203,50 +204,49 @@ class Model(metaclass=ABCMeta):
             view_component = data['jsx']
             if "react" not in import_list:
                 view_component = 'import React from "react";\n' + view_component
+            view_component = 'import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";\n' + view_component
             view_component = 'import Directive from "./ReactDirective";\n' + view_component
-            # view_component = 'import Directive from "react-directive";\n' + view_component
+
+            ## WizComponent replace
+            view_component = view_component.replace("WizComponent", package['title'])
 
             ## WizView replace
+            is_pug = True
+            try:
+                is_pug = package['properties']['html'] == "pug"
+            except:
+                pass
+            def compile(code):
+                pugconfig = season.stdClass()
+                pugconfig.variable_start_string = '{$'
+                pugconfig.variable_end_string = '$}'
+
+                pug = pypugjs.Parser(code)
+                pug = pug.parse()
+                html = pypugjs.ext.jinja.Compiler(pug, **pugconfig).compile()
+                return html.replace('"{', "{").replace('}"', "}")
+            wizview = data['view']
+            if is_pug:
+                wizview = compile(wizview)
             wizview_regex = re.compile('return[\s]+WizView;?')
             res_wizview = wizview_regex.findall(view_component)
             if res_wizview is not None and len(res_wizview) > 0:
-                vac = 'return (<Directive>\n' + data['vac'] + '\n</Directive>);'
-                view_component = view_component.replace(res_wizview[-1], vac)
-            # pugview_regex = re.compile('return[\s]+PugView;?')
-            # res_pugview = wizview_regex.findall(view_component)
+                view = 'return (<Directive>\n' + wizview + '\n</Directive>);'
+                view_component = view_component.replace(res_wizview[-1], view)
 
             ## save replaced code
             self.fs.write("ViewComponent.jsx", view_component)
 
-#             import pypugjs
-
-#             def compile(code):
-#                 pugconfig = season.stdClass()
-#                 pugconfig.variable_start_string = '[['
-#                 pugconfig.variable_end_string = ']]'
-
-#                 pug = pypugjs.Parser(code)
-#                 pug = pug.parse()
-#                 html = pypugjs.ext.jinja.Compiler(pug, **pugconfig).compile()
-#                 print(html)
-#                 return html
-
-#             test_code = '''
-# .test(onChange={onChange})
-#     input(value={value})
-#             '''
-#             test_code = test_code.replace("{", "'{").replace("}", "}'")
-#             compile(test_code)
-
             ## index.jsx
             js = f'''import React from "react";
 import ReactDOM from "react-dom/client";
+import {{ RecoilRoot }} from "recoil";
 import {component} from "./ViewComponent.jsx";
 const App = () => {{
     return (
-        <div className="react">
+        <RecoilRoot>
             <{component} />
-        </div>
+        </RecoilRoot>
     );
 }}
 ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
@@ -257,8 +257,8 @@ ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
             self.fs.write.json("dic.json", data['dic'])
             self.fs.write("api.py", data['api'])
             self.fs.write("socketio.py", data['socketio'])
-            self.fs.write(f"VAC.jsx", data['vac'])
-            self.fs.write(f"View.jsx", data['jsx'])
+            self.fs.write(f"view.jsx", data['view'])
+            self.fs.write(f"component.jsx", data['jsx'])
             self.fs.write(f"view.scss", data['scss'])
 
             root = os.path.join(season.path.project, "branch", wiz.branch())
