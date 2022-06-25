@@ -8,7 +8,7 @@ esbuild.build({
   outfile: `${args[1]}`,
   bundle: true,
   color: true,
-  nodePaths: ["WizModules"],
+  nodePaths: ["modules"],
   loader: {
     ".svg": "dataurl",
     '.png': 'dataurl',
@@ -24,4 +24,3 @@ esbuild.build({
     }),
   ],
 });
-
