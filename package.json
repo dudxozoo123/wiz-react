@@ -22,6 +22,8 @@
     "@babel/core": "^7.17.10",
     "@babel/preset-env": "^7.17.10",
     "react-directive": "^1.0.0",
+    "react-router": "^6.3.0",
+    "react-router-dom": "^6.3.0",
     "react-vac": "^0.2.2",
     "recoil": "^0.7.4"
   }

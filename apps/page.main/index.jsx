@@ -1,6 +1,6 @@
-import "./view.scss";
-import Directive from "WizDirective";
 import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";
+import Directive from "WizDirective";
+import "./view.scss";
 import React, { useState, } from "react";
 import VAC from "react-vac";
 import { testAtom, valueSelector } from "WizStore";

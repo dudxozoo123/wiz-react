@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import Router from "WizRouter";
 import { RecoilRoot } from "recoil";
-import Main from "./apps/page.main";
 const App = () => {
     return (
         <RecoilRoot>
-            <Main />
+            <Router />
         </RecoilRoot>
     );
 }

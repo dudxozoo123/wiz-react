@@ -192,21 +192,16 @@ class Model(metaclass=ABCMeta):
             # extensions
             wiz = self.manager.wiz
             # react build
-            
-            ## get Component Name
-            p = re.compile('export[\s]+default[\s]+([A-Z]+[a-zA-Z]+[0-9]?);?')
-            _search = p.search(data['jsx'])
-            component = _search[1]
 
             ## react import check
             import_regex = re.compile('import[\s]+.+[\s]+from[\s]+[\'\"]{1}(.+)[\'\"]{1};?')
             import_list = import_regex.findall(data['jsx'])
             view_component = data['jsx']
+            view_component = 'import "./view.scss";\n' + view_component
+            view_component = 'import Directive from "WizDirective";\n' + view_component
+            view_component = 'import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";\n' + view_component
             if "react" not in import_list:
                 view_component = 'import React from "react";\n' + view_component
-            view_component = 'import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";\n' + view_component
-            view_component = 'import Directive from "WizDirective";\n' + view_component
-            view_component = 'import "./view.scss";\n' + view_component
 
             ## WizComponent replace
             view_component = view_component.replace("WizComponent", package['title'])
@@ -241,16 +236,28 @@ class Model(metaclass=ABCMeta):
             ## index.jsx
             js = f'''import React from "react";
 import ReactDOM from "react-dom/client";
+import Router from "WizRouter";
 import {{ RecoilRoot }} from "recoil";
-import {component} from "./apps/{self.id}";
 const App = () => {{
     return (
         <RecoilRoot>
-            <{component} />
+            <Router />
         </RecoilRoot>
     );
 }}
 ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
+#             js = f'''import React from "react";
+# import ReactDOM from "react-dom/client";
+# import {{ RecoilRoot }} from "recoil";
+# import {component} from "./apps/{self.id}";
+# const App = () => {{
+#     return (
+#         <RecoilRoot>
+#             <{component} />
+#         </RecoilRoot>
+#     );
+# }}
+# ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
             entry_index = "index.jsx"
             root_basepath = os.path.join(season.path.project, "branch", wiz.branch())
             rootfs = season.util.os.FileSystem(root_basepath)
