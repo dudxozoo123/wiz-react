@@ -43,11 +43,8 @@ const Main = () => {
   <input onChange={e => setValue(e.target.value)} value={value}/>
   <div>value: {value}</div>
   <VAC name="recoil test" data={{rand, length}}></VAC>
-  <div wiz-if={value.length > 0} class="iftest">length over 0</div>
-  <div wiz-if={value.length === 0} class="iftest">length is 0</div>
-  <div wiz-for={3} class="fortest">
-    <Test></Test>
-  </div>
+  <div wiz-if={value.length > 0} class="iftest">length over 00000</div>
+  <div wiz-if={value.length === 0} class="iftest">length is 0000</div>
   <hr/>
   <div wiz-for={['apple', 'banana', 'candy']} class="fortest">
     <Test>

@@ -8,7 +8,7 @@ esbuild.build({
   outfile: `${args[1]}`,
   bundle: true,
   color: true,
-  nodePaths: ["modules"],
+  nodePaths: ["builtin_modules", "modules"],
   loader: {
     ".svg": "dataurl",
     '.png': 'dataurl',
