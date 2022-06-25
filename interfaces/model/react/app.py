@@ -206,6 +206,7 @@ class Model(metaclass=ABCMeta):
                 view_component = 'import React from "react";\n' + view_component
             view_component = 'import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";\n' + view_component
             view_component = 'import Directive from "./ReactDirective";\n' + view_component
+            view_component = 'import "./view.scss";\n' + view_component
 
             ## WizComponent replace
             view_component = view_component.replace("WizComponent", package['title'])
@@ -270,7 +271,9 @@ ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
             theme = tmp[0]
             layout = tmp[1]
             html = wiz.server.wiz.theme(theme).layout(layout).view('layout.html')
-            html = str(html).replace("</body>", f"<script type='text/javascript' src='/build/{self.id}.js'></script>\n</body>")
+            _script = f"<script type='text/javascript' src='/build/{self.id}.js'></script>"
+            _css = f"<link href='/build/{self.id}.css' rel='stylesheet' />"
+            html = str(html).replace("</body>", f"{_script}\n{_css}\n</body>")
             buildfs = season.util.os.FileSystem(os.path.join(root, "build"))
             buildfs.write(f"{self.id}.html", html)
 

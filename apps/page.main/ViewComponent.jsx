@@ -1,8 +1,10 @@
+import "./view.scss";
 import Directive from "./ReactDirective";
 import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";
 import React, { useState, } from "react";
 import VAC from "react-vac";
 import { testAtom, valueSelector } from "./Store";
+import TestModule from "TestModule";
 
 const Test = ({ children, item, $index }) => {
     return (
@@ -33,6 +35,7 @@ const Main = () => {
     const rand = () => {
         setValue(Math.random());
     }
+    console.log(TestModule)
 
     return (<Directive>
 
