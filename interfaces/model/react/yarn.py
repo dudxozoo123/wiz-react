@@ -85,21 +85,20 @@ yarn-error.log*
 """
 
 class Model:
-    def __init__(self, storage):
-        self.storage = storage
+    def __init__(self):
+        basepath = os.path.join(season.path.project, "branch", wiz.branch())
+        self.storage = season.util.os.FileSystem(basepath)
             
-        if storage.exists() is False:
-            storage.makedirs()
-        self.abspath = storage.abspath()
+        if self.storage.exists() is False:
+            self.storage.makedirs()
+        self.abspath = self.storage.abspath()
 
         # check yarn installed
-        if storage.namespace != "":
-            return
         args = ["type", "yarn"]
         result = self.cmd(*args)
         if "not found" in result:
             self.__error__("please install yarn")
-        self.default_dep = ["react", "react-dom"]
+        self.default_dep = ["react", "react-dom", "react-router", "react-router-dom", "recoil"]
         self.default_devdep = ["@babel/core", "@babel/cli", "@babel/preset-env", "@babel/plugin-transform-react-jsx", "@babel/preset-react"]
         self.default_devdep = self.default_devdep + ["esbuild", "esbuild-sass-plugin", "node-sass"]
         self.default_devdep = self.default_devdep + ["react-vac"]
@@ -157,6 +156,8 @@ esbuild.build({
   entryPoints: [`${args[0]}.jsx`],
   outfile: `${args[1]}.js`,
   bundle: true,
+  color: true,
+  nodePaths: ["builtin_modules", "modules", "apps"],
   loader: {
     ".svg": "dataurl",
     ".png": "dataurl",

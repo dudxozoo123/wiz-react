@@ -1,0 +1,9 @@
+{
+    "id": "react.component.api",
+    "title": "/app/api/<app_id>/<fnname>",
+    "route": "/app/api/<app_id>/<fnname>",
+    "controller": "",
+    "created": "2022-07-02 15:12:03",
+    "updated": "2022-07-02 15:32:06",
+    "viewuri": "/app/api/page.main/status?test=1"
+}

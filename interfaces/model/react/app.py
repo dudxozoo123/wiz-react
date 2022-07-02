@@ -9,6 +9,60 @@ import subprocess
 from abc import *
 import pypugjs
 
+WIZ_REACT = """
+/* WIZ-REACT APP API
+ * additional options is refer to 
+ * https://developer.mozilla.org/ko/docs/Web/API/Fetch_API/Using_Fetch
+ */
+
+const __init<COMPONENT>__ = () => {
+    const defaultOptions = {
+        method: "GET",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+        },
+    };
+
+    const __onError__ = (err) => {
+        console.error(err);
+    }
+
+    const URI = (apiName) => {
+        return `/app/api/<APP_ID>/${apiName}`;
+    }
+
+    const API = async (apiName, options = {}, json = true, errorDefault = null, onError = __onError__) => {
+        const opts = {
+            ...defaultOptions,
+            ...options,
+        };
+        try {
+            let res = await fetch(URI(apiName), opts);
+            if (!json) return res;
+            const { code, data } = await res.json();
+            if(!/^20[0124]$/.test(code)) {
+                throw new Error(data);
+            }
+            return data;
+        }
+        catch(err) {
+            onError(err);
+            return errorDefault;
+        }
+    }
+
+    return {
+        API,
+        lang: () => {
+            return navigator.language;
+        },
+    };
+}
+const wiz = __init<COMPONENT>__();
+
+"""
+
 class Model(metaclass=ABCMeta):
     def __init__(self, wiz):
         self.wiz = wiz
@@ -224,11 +278,14 @@ class Model(metaclass=ABCMeta):
             wizview = data['view']
             if is_pug:
                 wizview = compile(wizview)
+                wizview = re.sub(r'(<[a-z]+.+)(class)(=".+"*>)', r"\1className\3", wizview)
             wizview_regex = re.compile('return[\s]+WizView;?')
             res_wizview = wizview_regex.findall(view_component)
             if res_wizview is not None and len(res_wizview) > 0:
                 view = 'return (<Directive>\n' + wizview + '\n</Directive>);'
                 view_component = view_component.replace(res_wizview[-1], view)
+            view_component = WIZ_REACT.replace("<COMPONENT>", package['title']) + view_component
+            view_component = view_component.replace("<APP_ID>", self.id)
 
             ## save replaced code
             self.fs.write("index.jsx", view_component)
@@ -246,18 +303,6 @@ const App = () => {{
     );
 }}
 ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
-#             js = f'''import React from "react";
-# import ReactDOM from "react-dom/client";
-# import {{ RecoilRoot }} from "recoil";
-# import {component} from "./apps/{self.id}";
-# const App = () => {{
-#     return (
-#         <RecoilRoot>
-#             <{component} />
-#         </RecoilRoot>
-#     );
-# }}
-# ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
             entry_index = "index.jsx"
             root_basepath = os.path.join(season.path.project, "branch", wiz.branch())
             rootfs = season.util.os.FileSystem(root_basepath)
