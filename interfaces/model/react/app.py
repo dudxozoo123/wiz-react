@@ -259,6 +259,7 @@ class Model(metaclass=ABCMeta):
 
             ## WizComponent replace
             view_component = view_component.replace("WizComponent", package['title'])
+            view_component = view_component + "\nexport default " + package['title']
 
             ## WizView replace
             is_pug = True
@@ -319,18 +320,18 @@ ReactDOM.createRoot(document.querySelector("#root")).render(<App />);'''
 
             root = os.path.join(season.path.project, "branch", wiz.branch())
             target_path = os.path.join(rootfs.abspath(), entry_index)
-            build_path = os.path.join(root, "build", f"{self.id}.js")
+            build_path = os.path.join(root, "build", "wiz.build.js")
             output = self.cmd(["cd", root, "&&", "yarn", "run", "build", target_path, build_path])
             theme_name = package['theme']
             tmp = theme_name.split("/")
             theme = tmp[0]
             layout = tmp[1]
             html = wiz.server.wiz.theme(theme).layout(layout).view('layout.html')
-            _script = f"<script type='text/javascript' src='/build/{self.id}.js'></script>"
-            _css = f"<link href='/build/{self.id}.css' rel='stylesheet' />"
+            _script = f"<script type='text/javascript' src='/build/wiz.build.js'></script>"
+            _css = f"<link href='/build/wiz.build.css' rel='stylesheet' />"
             html = str(html).replace("</body>", f"{_script}\n{_css}\n</body>")
             buildfs = season.util.os.FileSystem(os.path.join(root, "build"))
-            buildfs.write(f"{self.id}.html", html)
+            buildfs.write(f"wiz.build.html", html)
 
             # update cache
             wiz.server.socket.bind()

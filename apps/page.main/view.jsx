@@ -1,4 +1,5 @@
 div
+    Search
     | this is test page.
     input(onChange="{e => setValue(e.target.value)}" value="{value}")
     div value: {value}

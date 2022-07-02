@@ -57,6 +57,7 @@ import React, { useState, useEffect } from "react";
 import VAC from "react-vac";
 import { testAtom, valueSelector } from "WizStore";
 import TestModule from "TestModule";
+import Search from "page.search";
 
 const Test = ({ children, item, $index }) => {
     return (
@@ -79,8 +80,6 @@ const Test2 = ({ item, $index }) => {
     );
 }
 
-
-// Main로 강제시키고 title로 replace
 const Main = () => {
     const [value, setValue] = wizState(testAtom);
     const length = wizValue(valueSelector);
@@ -101,7 +100,8 @@ const Main = () => {
 
     return (<Directive>
 
-<div>this is test page.
+<div>
+  <Search></Search>this is test page.
   <input onChange={e => setValue(e.target.value)} value={value}/>
   <div>value: {value}</div>
   <VAC name="recoil test" data={{rand, length}}></VAC>
@@ -123,4 +123,4 @@ const Main = () => {
 </Directive>);
 }
 
-export default Main;
+export default Main

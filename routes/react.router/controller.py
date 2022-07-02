@@ -15,11 +15,11 @@ if paths[0] == "build":
     }
     res = ""
     try:
-        res = app.fs.read.text(app_id)
+        res = app.fs.read.text(f"wiz.build.{ext}")
     except:
         pass
     wiz.response.send(res, "text/"+extmap[ext])
 
-view = app.fs.read.text(f"{app_id}.html")
+view = app.fs.read.text("wiz.build.html")
 view = markupsafe.Markup(view)
 wiz.response.send(view, "text/html")
