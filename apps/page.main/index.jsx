@@ -101,7 +101,7 @@ const Main = () => {
     return (<Directive>
 
 <div>
-  <Search></Search>this is test page.
+  <Search></Search>this is test page.11111111
   <input onChange={e => setValue(e.target.value)} value={value}/>
   <div>value: {value}</div>
   <VAC name="recoil test" data={{rand, length}}></VAC>
@@ -122,5 +122,6 @@ const Main = () => {
 </div>
 </Directive>);
 }
+
 
 export default Main

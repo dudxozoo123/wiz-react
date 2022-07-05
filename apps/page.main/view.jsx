@@ -1,6 +1,6 @@
 div
     Search
-    | this is test page.
+    | this is test page.11111111
     input(onChange="{e => setValue(e.target.value)}" value="{value}")
     div value: {value}
     VAC(name="recoil test" data="{{rand, length}}")

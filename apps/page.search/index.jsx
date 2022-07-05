@@ -50,32 +50,81 @@ const __initSearch__ = () => {
 }
 const wiz = __initSearch__();
 
-import React from "react";
 import { useRecoilState as wizState, useRecoilValue as wizValue } from "recoil";
 import Directive from "WizDirective";
 import "./view.scss";
-const Search = () => {
-   return (<Directive>
+import React, { useState, useEffect } from "react";
+import VAC from "react-vac";
+import { testAtom, valueSelector } from "WizStore";
+import TestModule from "TestModule";
 
-<div className="search-wrap">
-  <table className="table table-hover">
-    <thead>
-      <th>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Created</th>
-      </th>
-    </thead>
-    <tbody>
-      <tr>
-        <td>1</td>
-        <td>철수</td>
-        <td>20201</td>
-      </tr>
-    </tbody>
-  </table>
+const Test = ({ children, item, $index }) => {
+    return (
+        <div>
+            this is test.
+            <div>{item}-{$index}</div>
+            {children}
+            <hr />
+        </div>
+    );
+}
+const Test2 = ({ item, $index }) => {
+    // const [key, value] = item;
+    const { key, value } = item;
+    return (
+        <div>
+            this is test.
+            <div>{key}-{value}-{$index}</div>
+        </div>
+    );
+}
+
+const Search = () => {
+    const [value, setValue] = wizState(testAtom);
+    const length = wizValue(valueSelector);
+
+
+    const rand = () => {
+        setValue(Math.random());
+    }
+    console.log(TestModule)
+
+    useEffect(() => {
+        const fn = async () => {
+            const data = await wiz.API("status", {a: 1, b: 2});
+            console.log(data);
+        }
+        fn();
+    }, []);
+
+    return (<Directive>
+<div>
+    this is Search page
+    <input
+        onChange={(e) => {
+            setValue(e.target.value);
+        }}
+        value={value}
+    />
+    <div>value: {value}</div>
+    <VAC name="recoil test" data={{rand, length}} />
+    <div className="iftest" wiz-if={value.length > 0}>length over 0</div>
+    <div className="iftest" wiz-if={value.length === 0}>length is 0</div>
+    <hr/>
+    <div className="fortest" wiz-for={['apple', 'banana', 'candy']}>
+        <Test>
+            <div wiz-for={['duty', 'earn', 'fist']}>
+                <Test />
+            </div>
+        </Test>
+    </div>
+    <hr/>
+    <div className="fortest" wiz-for={{a: 1, b: 2, c: 3}}>
+        <Test2 />
+    </div>
 </div>
 </Directive>);
 }
+
 
 export default Search

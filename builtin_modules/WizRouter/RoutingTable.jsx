@@ -1,16 +1,16 @@
 import React from "react";
 import Main from "page.main";
-// import Search from "page.search";
+import Search from "page.search";
 
 const RouteTable = [
     {
         path: "/main",
         element: <Main />,
     },
-    // {
-    //     path: "/search/:type",
-    //     element: Search,
-    // },
+    {
+        path: "/search",
+        element: <Search />,
+    },
 ];
 
 export const RedirectTable = [
