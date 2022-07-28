@@ -214,19 +214,26 @@ class Model(metaclass=ABCMeta):
 
         def update(self, data):
             # check structure
-            required = ['package', 'dic', 'api', 'socketio', 'view', 'jsx', 'scss']
+            required = ['package', 'view', 'jsx', 'scss']
             for key in required:
                 if key not in data: 
                     raise Exception(f"'`{key}`' not defined")
                 elif type(data[key]) is str:
                     data[key] = data[key].replace('', '')
 
+            package = data['package']
+            if package['category'] == 'page':
+                required = ['dic', 'api', 'socketio']
+                for key in required:
+                    if key not in data:
+                        raise Exception(f"'`{key}`' not defined")
+                    elif type(data[key]) is str:
+                        data[key] = data[key].replace('', '')
+
             required = ['id']
             for key in required:
                 if key not in data['package']: 
                     raise Exception(f"'`package.{key}`' not defined")
-
-            package = data['package']
 
             # check id format
             id = package['id']
