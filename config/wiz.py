@@ -1,4 +1,4 @@
 category = [
     {'id': 'page', 'title': 'Page'},
-    {'id': 'component', 'title': 'Components'},
+    {'id': 'component', 'title': 'Component'},
 ]
