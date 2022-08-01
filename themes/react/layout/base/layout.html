@@ -14,9 +14,34 @@
     <meta name="HandheldFriendly" content="True" />
     <meta name="MobileOptimized" content="320" />
     <link rel="shortcut icon" href="/resources/themes/react/favicon/favicon.ico?" />
-    <link href="/resources/themes/default/libs/fontawesome/css/all.min.css" rel="stylesheet" />
+    <!-- <link href="/resources/themes/default/libs/fontawesome/css/all.min.css" rel="stylesheet" />
     <link href="/resources/themes/default/libs/toastr/toastr.min.css" rel="stylesheet" />
-    <script src="/resources/themes/default/libs/toastr/toastr.min.js"></script>
+    <script src="/resources/themes/default/libs/toastr/toastr.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script>
+        window.app = angular.module(
+            'app', []
+        ).directive('ngEnter', function () {
+            return function (scope, element, attrs) {
+                element.bind('keydown keypress', function (event) {
+                    if (event.which === 13) {
+                        scope.$apply(function () {
+                            scope.$eval(attrs.ngEnter);
+                        });
+                        event.preventDefault();
+                    }
+                });
+            };
+        })
+        .directive('ngText', function () {
+            return function (scope, element, attrs) {
+                return {
+                    template: `<div>{{ ${attrs.ngText} }}</div>`,
+                    replace: true,
+                };
+            };
+        });
+    </script>
 </head>
 <body class="antialiased">
     <div class="page">

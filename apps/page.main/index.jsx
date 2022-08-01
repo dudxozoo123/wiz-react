@@ -80,6 +80,47 @@ const Test2 = ({ item, $index }) => {
     );
 }
 
+window.app.controller('test-app', async ($sce, $scope, $timeout) => {
+    $scope.text = "123123123";
+    $scope.alert = () => {
+        alert("!!!");
+    }
+})
+.directive('text', function ($compile) {
+    return {
+        restrict: "AE",
+        scope: {
+            content: "=",
+        },
+        template: `<div>{{content}}</div>`,
+    }
+})
+.directive('wizText', function ($compile) {
+    return {
+        restrict: "A",
+        scope: {},
+        template: "<div>{{text}}</div>",
+        link: ($scope, elmt, attrs, ctrl) => {
+            $scope.$parent.$watch(attrs.wizText, (val) => {
+                $scope.text = val;
+            });
+            // $scope.text = $scope.$parent.$eval(attrs.wizText);
+        }
+    }
+})
+.directive('ngEnter', function () {
+    return function (scope, element, attrs) {
+        element.bind('keydown keypress', function (event) {
+            if (event.which === 13) {
+                scope.$apply(function () {
+                    scope.$eval(attrs.ngEnter);
+                });
+                event.preventDefault();
+            }
+        });
+    };
+})
+
 const Main = () => {
     const [value, setValue] = wizState(testAtom);
     const length = wizValue(valueSelector);
@@ -88,39 +129,29 @@ const Main = () => {
     const rand = () => {
         setValue(Math.random());
     }
-    console.log(TestModule)
+    // console.log(TestModule)
 
     useEffect(() => {
         const fn = async () => {
             const data = await wiz.API("status", {a: 1, b: 2});
-            console.log(data);
+            // console.log(data);
         }
         fn();
     }, []);
 
     return (<Directive>
 
-<div>
-  <Search></Search>this is test page.11111111
-  <input onChange={e => setValue(e.target.value)} value={value}/>
-  <div>value: {value}</div>
-  <VAC name="recoil test" data={{rand, length}}></VAC>
-  <div wiz-if={value.length > 0} className="iftest">length over 0</div>
-  <div wiz-if={value.length === 0} className="iftest">length is 0</div>
-  <hr/>
-  <div wiz-for={['apple', 'banana', 'candy']} className="fortest">
-    <Test>
-      <div wiz-for={['duty', 'earn', 'fist']}>
-        <Test></Test>
-      </div>
-    </Test>
-  </div>
-  <hr/>
-  <div wiz-for={{a: 1, b: 2, c: 3}} className="fortest">
-    <Test2></Test2>
-  </div>
+<div ng-controller="test-app">
+  <input ng-model="text"/>
+  <div wiz-text="text"></div>
 </div>
 </Directive>);
+    // return (
+    //     <div ng-controller="test-app">
+    //         <input ng-model="text" ng-enter="alert()"/>
+    //         <text content="text" />
+    //     </div>
+    // );
 }
 
 
